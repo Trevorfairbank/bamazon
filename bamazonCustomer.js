@@ -17,8 +17,9 @@ connection.connect(err => {
     console.log("You are connected as id " + connection.threadId);
     connection.query("SELECT*FROM products", function (err, response) {
         if (err) throw err;
-        console.table(response);
-        buyProduct();
+        // console.table(response);
+        // buyProduct();
+        nextPrompt();
     })
 })
 
@@ -48,7 +49,10 @@ function buyProduct() {
             ])
             .then(function (data) {
                 //console.log(data);
-
+                // if(data.choice === "exit"){
+                //     console.log("See you next time! Enjoy the rest of your day!");
+                //     connection.end();
+                // }
                 //set selected item row into a variable
                 let itemChosen;
 
@@ -60,23 +64,22 @@ function buyProduct() {
 
                 if (parseInt(itemChosen.stock_quantity) > parseInt(data.quantity)) {
 
-                    console.log(itemChosen);
-
                     const newStock = parseInt(itemChosen.stock_quantity) - parseInt(data.quantity);
                     connection.query(
                         "UPDATE products SET stock_quantity= ? WHERE item_id= ?",
                         [newStock, itemChosen.item_id],
                         function (error) {
                             if (error) throw err;
-                            console.log("You have bought " + data.quantity + " " + itemChosen.product_name);
-                            showTable();
-                            buyProduct();
+                            const total = (parseFloat(data.quantity) * parseFloat(itemChosen.price));
+                            console.log("You have bought " + data.quantity + " " + itemChosen.product_name + ", which comes to the total of $" + total);
+                            nextPrompt();
                         }
                     );
                 }
 
                 else {
                     console.log("Sorry, not enough in our inventory.");
+                    nextPrompt();
                 }
 
 
@@ -88,5 +91,25 @@ function showTable() {
     connection.query("SELECT*FROM products", function (err, response) {
         if(err) throw err;
         console.table(response);
+    })
+}
+
+function nextPrompt (){
+    inquirer.prompt({
+        type:"list",
+        name: "question",
+        message: "Would you like to buy an item from bamazon?",
+        choices: ["yes","no"]
+    }).then(function(data){
+
+        if (data.question === "yes"){
+        console.log(data.question);
+        showTable();
+        buyProduct();
+        }
+        else {
+            console.log("Thank you for shopping at bamazon!")
+            connection.end();
+        }
     })
 }

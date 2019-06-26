@@ -17,8 +17,7 @@ connection.connect(err => {
     console.log("You are connected as id " + connection.threadId);
     connection.query("SELECT*FROM products", function (err, response) {
         if (err) throw err;
-        // console.table(response);
-        // buyProduct();
+        console.table(response);
         nextPrompt();
     })
 })
@@ -48,12 +47,7 @@ function buyProduct() {
                 }
             ])
             .then(function (data) {
-                //console.log(data);
-                // if(data.choice === "exit"){
-                //     console.log("See you next time! Enjoy the rest of your day!");
-                //     connection.end();
-                // }
-                //set selected item row into a variable
+
                 let itemChosen;
 
                 for (var i = 0; i < response.length; i++) {
@@ -82,30 +76,29 @@ function buyProduct() {
                     nextPrompt();
                 }
 
-
             })
     })
 }
 
 function showTable() {
     connection.query("SELECT*FROM products", function (err, response) {
-        if(err) throw err;
+        if (err) throw err;
         console.table(response);
     })
 }
 
-function nextPrompt (){
+function nextPrompt() {
     inquirer.prompt({
-        type:"list",
+        type: "list",
         name: "question",
         message: "Would you like to buy an item from bamazon?",
-        choices: ["yes","no"]
-    }).then(function(data){
+        choices: ["yes", "no"]
+    }).then(function (data) {
 
-        if (data.question === "yes"){
-        console.log(data.question);
-        showTable();
-        buyProduct();
+        if (data.question === "yes") {
+            console.log(data.question);
+            showTable();
+            buyProduct();
         }
         else {
             console.log("Thank you for shopping at bamazon!")
